@@ -1,0 +1,155 @@
+---
+title: "cm004"
+author: "namanpaul"
+date: "September 17, 2015"
+output: html_document
+---
+
+Feeding in data, and other basic care
+
+```{r}
+#install the package:
+#install.packages("gapminder")
+#install.packages("dplyr")
+#load the package
+library(gapminder)
+
+aggregate(lifeExp ~ continent, gapminder, median)
+
+#loading the dplyr package, with supressed startup messages
+suppressPackageStartupMessages(library("dplyr"))
+```
+
+Few visuals for the dataset
+
+```{r}
+str(gapminder)
+
+#viewing the head of the gapminder
+head(gapminder)
+
+#viewing the tail of the gapminder dataset
+
+tail(gapminder)
+
+gapminder[sample(nrow(gapminder), 10),]
+
+#various field titles(col names)
+names(gapminder)
+
+#no. of columns
+ncol(gapminder)
+
+#same as ncol
+length(gapminder)
+
+#first few rownames
+head(rownames(gapminder))
+
+#dimensions of the df
+dim(gapminder)
+
+#no. of rows
+nrow(gapminder)
+
+```
+Stastical Overview using summary()
+```{r}
+summary(gapminder)
+```
+
+A Basic plot, for lifeExp VS year
+```{r}
+plot(lifeExp ~ year, gapminder)
+
+#plotting lifeExp vs gdpPercap
+plot(lifeExp ~ gdpPercap, gapminder)
+
+#plotting lifeExp vs log(gdpPercap)
+plot(lifeExp ~ log(gdpPercap), gapminder)
+```
+
+Variable Watchout in the data frame
+```{r}
+head(gapminder$lifeExp)
+summary(gapminder$lifeExp)
+hist(gapminder$lifeExp)
+```
+Looking for the categorical variable
+
+```{r}
+summary(gapminder$year)
+table(gapminder$year)
+```
+The TRUE categorical variable
+
+```{r}
+#what class is the variable continent
+class(gapminder$continent)
+
+#summary to check how many rows lie under the continent field
+summary(gapminder$continent)
+
+#the levels of continent???
+levels(gapminder$continent)
+
+#no. of levels 
+nlevels(gapminder$continent)
+```
+How is the continent variable stored!
+
+```{r}
+str(gapminder$continent)
+table(gapminder$continent)
+
+#a bar plot for the continent table
+barplot(table(gapminder$continent))
+```
+
+Ctrl C+ V for the ggplot2
+```{r}
+#install.packages("ggplot2")
+library(ggplot2)
+p <- ggplot(subset(gapminder, continent != "Oceania"),
+            aes(x = gdpPercap, y = lifeExp)) # just initializes
+p <- p + scale_x_log10() # log the x axis the right way
+p + geom_point() # scatterplot
+p + geom_point(aes(color = continent)) # map continent to color
+p + geom_point(alpha = (1/3), size = 3) + geom_smooth(lwd = 3, se = FALSE)
+## geom_smooth: method="auto" and size of largest group is >=1000, so using gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the smoothing method.
+p + geom_point(alpha = (1/3), size = 3) + facet_wrap(~ continent)
+```
+
+Extracting a subset for INDIA
+
+```{r}
+subset(gapminder, subset = country == "India")
+
+#extracting the particular rows
+gapminder[697:708, ]
+```
+
+Another subset!
+```{r}
+subset(gapminder, subset = country == "Canada",
+       select = c(country, year, lifeExp))
+
+p <- ggplot(subset(gapminder, country == "Colombia"),
+            aes(x = year, y = lifeExp))
+p + geom_point() + geom_smooth(lwd = 1, se = FALSE, method = "lm")
+```
+
+Some more ctrl c+v
+```{r}
+(minYear <- min(gapminder$year))
+## [1] 1952
+myFit <- lm(lifeExp ~ I(year - minYear), gapminder,
+            subset = country == "Colombia")
+summary(myFit)
+
+lm(lifeExp ~ year, gapminder, subset = country == "Colombia")
+plot(lifeExp ~ year, gapminder, subset = country == "Colombia")
+
+with(subset(gapminder, subset = country == "Colombia"),
+     cor(lifeExp, gdpPercap))
+```
